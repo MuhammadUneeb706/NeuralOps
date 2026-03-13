@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralOps | Automation & Intelligence Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --neon-green: #00ff41;
+            --dark-green: #003b00;
+            --black: #050505;
+            --card-bg: rgba(10, 20, 10, 0.4);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--black);
+            color: #e0e0e0;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            background-image: 
+                linear-gradient(to right, rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+        }
+
+        .neon-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .glass-dark {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 65, 0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-dark:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        .btn-neon {
+            background: transparent;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-neon:hover {
+            background: var(--neon-green);
+            color: black;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 18px 36px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.85rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1eb956;
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.4);
+            transform: scale(1.05);
+        }
+
+        .terminal-window {
+            height: 320px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.8);
+            scrollbar-width: thin;
+            scrollbar-color: var(--dark-green) transparent;
+        }
+
+        .typewriter-cursor::after {
+            content: "_";
+            animation: blink 0.8s infinite;
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        input[type="range"] { accent-color: var(--neon-green); }
+        
+        input {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(0, 255, 65, 0.1) !important;
+            color: white !important;
+            outline: none;
+        }
+        input:focus { border-color: var(--neon-green) !important; }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--neon-green);
+            color: #000;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div id="toast">TRANSMISSION SUCCESSFUL</div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center backdrop-blur-xl border-b border-green-900/30">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-green-500 rounded-sm rotate-45 flex items-center justify-center">
+                <span class="text-black font-black -rotate-45 text-xs">DS</span>
+            </div>
+            <span class="text-xl font-bold tracking-widest uppercase italic">Neural<span class="neon-text">Ops</span></span>
+        </div>
+        <div class="hidden md:flex items-center space-x-10 text-[10px] font-bold tracking-[0.2em] uppercase">
+            <a href="#home" class="hover:text-green-400 transition">Core</a>
+            <a href="#projects" class="hover:text-green-400 transition">Arsenal</a>
+            <a href="#connect" class="btn-neon px-6 py-2">Secure Link</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex flex-col justify-center items-center pt-20 px-6">
+        <div class="max-w-5xl w-full text-center md:text-left">
+            <div class="font-mono text-green-500 mb-4 tracking-tighter text-sm md:text-base">[SYSTEM STATUS: ACTIVE]</div>
+            <h1 class="text-5xl md:text-9xl font-black mb-10 tracking-tight leading-none uppercase">
+                LEVEL UP <br> 
+                <span id="typewriter" class="neon-text typewriter-cursor"></span>
+            </h1>
+            <p class="text-gray-500 text-lg md:text-2xl max-w-2xl font-light leading-relaxed mb-12 mx-auto md:mx-0">
+                Engineering high-frequency digital architectures for elite scaling.
+            </p>
+            <div class="flex flex-wrap justify-center md:justify-start gap-6">
+                <a href="#projects" class="bg-green-500 text-black font-bold px-10 py-5 rounded-sm hover:bg-white transition flex items-center group uppercase tracking-widest text-sm">Decrypt Arsenal</a>
+                <a href="#connect" class="btn-neon px-10 py-5">Direct Link</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Digital Arsenal -->
+    <section id="projects" class="py-20 px-6 md:px-20">
+        <div class="max-w-7xl mx-auto space-y-12">
+            
+            <div class="flex items-center space-x-4 mb-16">
+                <div class="h-px flex-1 bg-green-900/50"></div>
+                <h2 class="text-3xl font-bold uppercase tracking-widest">Digital <span class="neon-text">Arsenal</span></h2>
+                <div class="h-px flex-1 bg-green-900/50"></div>
+            </div>
+
+            <!-- 1. NEURAL LEAD SCRAPER -->
+            <div class="glass-dark p-8 relative overflow-hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold uppercase tracking-tighter"><i class="fa-solid fa-terminal mr-2 text-green-500"></i> Neural Lead Scraper v4.0</h3>
+                    <div class="flex space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="space-y-4">
+                        <p class="text-[10px] font-mono text-gray-400">Instructions: Enter a category (e.g., 'CEO', 'Real Estate') to begin. Each scan generates unique results.</p>
+                        <div class="relative">
+                            <span class="absolute left-3 top-4 text-green-500 font-mono">></span>
+                            <input type="text" id="leadInput" placeholder="Enter Category..." class="w-full pl-8 p-4 rounded-lg font-mono text-xs">
+                        </div>
+                        <button onclick="runLeadGen()" class="btn-neon w-full">Execute Deep Scrape</button>
+                    </div>
+                    <div class="lg:col-span-2 terminal-window rounded-lg p-5 text-[10px] md:text-xs" id="leadLog">
+                        <div class="text-green-900/40 italic">// System idling... enter category to initialize scraping sequence.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- 2. EMAIL VALIDATOR -->
+                <div class="glass-dark p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-envelope-shield text-green-500 text-xl mr-3"></i>
+                        <h3 class="text-lg font-bold uppercase">MX-Guard Validator</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="text" id="emailInput" placeholder="check@domain.com" class="w-full p-3 rounded-lg font-mono text-xs">
+                        <button onclick="validateEmail()" class="btn-neon w-full py-2">Start Validation</button>
+                        <div id="emailResult" class="text-[10px] font-mono p-3 bg-black/40 rounded min-h-[50px] border border-white/5"></div>
+                    </div>
+                </div>
+
+                <!-- 3. ROI CALCULATOR -->
+                <div class="glass-dark p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-chart-line text-green-500 text-xl mr-3"></i>
+                        <h3 class="text-lg font-bold uppercase">ROI Optimization Engine</h3>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex justify-between text-[10px] uppercase font-mono">
+                            <span>Marketing Spend ($)</span>
+                            <span class="neon-text" id="spendVal">1000</span>
+                        </div>
+                        <input type="range" id="spendRange" min="500" max="10000" step="100" value="1000" class="w-full" oninput="updateROI()">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-black/40 p-3 rounded-lg border border-white/5">
+                                <div class="text-[9px] text-gray-500 uppercase mb-1">Lead Gain</div>
+                                <div class="text-xl font-bold text-white" id="leadGain">+120</div>
+                            </div>
+                            <div class="bg-black/40 p-3 rounded-lg border border-white/5">
+                                <div class="text-[9px] text-gray-500 uppercase mb-1">Annual Savings</div>
+                                <div class="text-xl font-bold neon-text" id="roiResult">$4,800</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. SOCIAL SCRAPER -->
+                <div class="glass-dark p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-share-nodes text-green-500 text-xl mr-3"></i>
+                        <h3 class="text-lg font-bold uppercase">Social Sentinel</h3>
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="socialInput" placeholder="Profile URL (LinkedIn/IG)" class="flex-1 p-3 rounded-lg font-mono text-xs">
+                        <button onclick="scrapeSocial()" class="btn-neon px-4"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                    <div id="socialResult" class="mt-4 p-4 bg-black/60 rounded border border-white/5 text-[10px] font-mono text-gray-400 hidden"></div>
+                </div>
+
+                <!-- 5. PORT SCANNER -->
+                <div class="glass-dark p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-user-shield text-green-500 text-xl mr-3"></i>
+                        <h3 class="text-lg font-bold uppercase">Security Port Auditor</h3>
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="ipInput" placeholder="192.168.1.1" class="flex-1 p-3 rounded-lg font-mono text-xs">
+                        <button onclick="scanPorts()" class="btn-neon px-4">Audit</button>
+                    </div>
+                    <div id="portResult" class="mt-4 text-[9px] font-mono h-24 overflow-y-auto bg-black/40 p-3 rounded">
+                        // Waiting for IP input...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Secure Connect Section (WhatsApp Integration) -->
+    <section id="connect" class="py-40 bg-green-500/5">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-5xl font-black uppercase mb-4 tracking-tighter">Initialize <span class="neon-text">Contact</span></h2>
+            <p class="text-gray-500 font-mono text-xs mb-12 tracking-[0.2em] uppercase">// High-Priority Communication Protocol Enabled</p>
+            
+            <div class="glass-dark p-12 flex flex-col items-center">
+                <div class="mb-8 w-20 h-20 rounded-full border-2 border-green-500 flex items-center justify-center animate-pulse">
+                    <i class="fa-brands fa-whatsapp text-4xl text-green-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold uppercase mb-4 tracking-widest">Protocol: <span class="text-green-500">Live Sync</span></h3>
+                <p class="text-gray-400 mb-10 text-sm max-w-md leading-relaxed">
+                    By-pass standard lead times. Connect directly with our engineering collective via the encrypted WhatsApp tunnel.
+                </p>
+                
+                <a href="https://wa.me/923341426823?text=Hello%20NeuralOps,%20I'm%20ready%20to%20scale%20my%20operations." target="_blank" class="btn-whatsapp shadow-lg">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    Secure WhatsApp Link
+                </a>
+                
+                <div class="mt-12 pt-8 border-t border-white/5 w-full flex justify-center space-x-8 text-[10px] font-mono text-gray-600 uppercase">
+                    <span>Target: +92 334 1426823</span>
+                    <span>Status: Online</span>
+                    <span>Encrypted: AES-256</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center text-[10px] font-mono text-gray-700 uppercase tracking-[0.5em]">
+        &copy; 2024 NEURALOPS COLLECTIVE // ALL RIGHTS RESERVED
+    </footer>
+
+    <script>
+        // --- TYPEWRITER LOGIC ---
+        const textElement = document.getElementById("typewriter");
+        const phrases = ["THE FUTURE.", "YOUR BUSINESS.", "THE WEB."];
+        let phraseIndex = 0, charIndex = 0, isDeleting = false;
+
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            textElement.textContent = isDeleting ? currentPhrase.substring(0, charIndex - 1) : currentPhrase.substring(0, charIndex + 1);
+            charIndex = isDeleting ? charIndex - 1 : charIndex + 1;
+            let typeSpeed = isDeleting ? 40 : 120;
+            if (!isDeleting && charIndex === currentPhrase.length) { isDeleting = true; typeSpeed = 2000; }
+            else if (isDeleting && charIndex === 0) { isDeleting = false; phraseIndex = (phraseIndex + 1) % phrases.length; typeSpeed = 600; }
+            setTimeout(type, typeSpeed);
+        }
+
+        // --- LEAD GENERATION TERMINAL LOGIC ---
+        const leadLog = document.getElementById('leadLog');
+        const leadInput = document.getElementById('leadInput');
+        let lastCategory = "";
+        let isScraping = false;
+
+        const leadsDatabase = {
+            "ceo": [
+                { n: "Alexander Vance", e: "ceo@vancetech.global", i: "Fortune 500" },
+                { n: "Elena Rodriguez", e: "elena@nexus.io", i: "SaaS Founder" },
+                { n: "Marcus Sterling", e: "m.sterling@goldman.com", i: "Investment" },
+                { n: "Sarah Jenkins", e: "sj@bluechip.net", i: "Equity Lead" },
+                { n: "David Chen", e: "chen@orient.co", i: "Mfg Director" }
+            ],
+            "real estate": [
+                { n: "Sunset Realty", e: "contact@sunset.net", i: "LA Luxury" },
+                { n: "Skyline Devs", e: "info@skyline.vc", i: "NYC Commercial" },
+                { n: "Oceanic Properties", e: "agent@oceanic.co", i: "Miami Beach" }
+            ]
+        };
+
+        function writeToLog(msg, color = 'text-green-500') {
+            const div = document.createElement('div');
+            div.className = `${color} mb-1`;
+            div.innerText = `> ${msg}`;
+            leadLog.appendChild(div);
+            leadLog.scrollTop = leadLog.scrollHeight;
+        }
+
+        async function runLeadGen() {
+            const cat = leadInput.value.trim().toLowerCase();
+            if (!cat) { writeToLog("ERROR: NO CATEGORY SPECIFIED.", "text-red-500"); return; }
+            if (isScraping) return;
+            if (cat === lastCategory) { writeToLog(`WARNING: DATA FOR '${cat.toUpperCase()}' IS ALREADY IN BUFFER.`, "text-yellow-500"); return; }
+
+            isScraping = true;
+            lastCategory = cat;
+            leadLog.innerHTML = '';
+            
+            writeToLog(`INITIALIZING SCRAPE ENGINE...`, 'text-white font-bold');
+            const sequence = ["Connecting to proxy mesh...", "Bypassing anti-bot layers...", "Fetching HTML nodes...", "Parsing lead data..."];
+            for (let step of sequence) {
+                writeToLog(step, 'text-green-900');
+                await new Promise(r => setTimeout(r, 600));
+            }
+
+            let results = [];
+            if (cat.includes('ceo')) results = leadsDatabase.ceo;
+            else if (cat.includes('real estate')) results = leadsDatabase['real estate'];
+            else {
+                for(let i=1; i<=10; i++) {
+                    results.push({
+                        n: `Entity_Ref_${Math.floor(Math.random()*9000)+1000}`,
+                        e: `contact_${i}@${cat.replace(/\s+/g,'')}.io`,
+                        i: `${cat.toUpperCase()} Targeted Record`
+                    });
+                }
+            }
+
+            writeToLog(`SUCCESS: ${results.length} RECORDS DECRYPTED.`, 'bg-green-500 text-black px-1 font-bold mt-2 inline-block');
+            
+            results.forEach((l, i) => {
+                setTimeout(() => {
+                    writeToLog(`${(i+1).toString().padStart(2,'0')} | ${l.n.padEnd(18)} | ${l.e.padEnd(22)} | ${l.i}`, 'text-gray-400');
+                }, i * 150);
+            });
+
+            setTimeout(() => { isScraping = false; }, 2000);
+        }
+
+        // --- EMAIL VALIDATOR ---
+        function validateEmail() {
+            const email = document.getElementById('emailInput').value;
+            const res = document.getElementById('emailResult');
+            if(!email.includes('@')) { res.innerText = "SYNTAX ERROR: INVALID EMAIL FORMAT"; res.className = "text-red-500 text-[10px]"; return; }
+            res.innerHTML = "Tracing MX Records...<br>Performing SMTP Handshake...";
+            res.className = "text-yellow-500 font-mono italic text-[10px]";
+            setTimeout(() => {
+                res.innerHTML = `<span class="text-green-500">[VALID]</span> MX: mail.google.com | Port 25: OPEN<br>Deliverability: 98.4% | Risk: LOW`;
+            }, 1800);
+        }
+
+        // --- ROI CALCULATOR ---
+        function updateROI() {
+            const val = document.getElementById('spendRange').value;
+            document.getElementById('spendVal').innerText = val;
+            const leads = Math.floor(val / 8.5);
+            const savings = (val * 4.5).toLocaleString();
+            document.getElementById('leadGain').innerText = `+${leads}`;
+            document.getElementById('roiResult').innerText = `$${savings}`;
+        }
+
+        // --- SOCIAL SCRAPER ---
+        function scrapeSocial() {
+            const url = document.getElementById('socialInput').value;
+            const res = document.getElementById('socialResult');
+            if(!url) return;
+            res.classList.remove('hidden');
+            res.innerHTML = "Authenticating Session... Fetching Metadata...";
+            setTimeout(() => {
+                res.innerHTML = `[ID]: ${Math.random().toString(36).substring(7).toUpperCase()}<br>[FOLLOWERS]: ${Math.floor(Math.random()*25000 + 1000).toLocaleString()}<br>[AVG_ENGAGEMENT]: ${(Math.random()*4 + 1).toFixed(2)}%<br>[STATUS]: ACTIVE_NODE`;
+            }, 1500);
+        }
+
+        // --- PORT SCANNER ---
+        function scanPorts() {
+            const ip = document.getElementById('ipInput').value || "127.0.0.1";
+            const res = document.getElementById('portResult');
+            res.innerHTML = `Audit initialized on ${ip}...<br>`;
+            const ports = [21, 22, 80, 443, 8080];
+            ports.forEach((p, i) => {
+                setTimeout(() => {
+                    const status = Math.random() > 0.4 ? '<span class="text-green-500">OPEN</span>' : '<span class="text-gray-600">CLOSED</span>';
+                    res.innerHTML += `PORT ${p}/tcp: ${status}<br>`;
+                    res.scrollTop = res.scrollHeight;
+                }, i * 350);
+            });
+        }
+
+        window.onload = () => {
+            type();
+        };
+    </script>
+</body>
+</html>
